@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cjk-preflight"
+version = "0.2.1"
+description = "中文 PDF 提交前检查器：缺字、字体嵌入、标点禁则、全半角混排、元数据、孤立字尾、页面尺寸"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "cjk-preflight contributors" }]
+keywords = ["pdf", "cjk", "chinese", "latex", "typesetting", "preflight", "lint"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Education",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Natural Language :: Chinese (Simplified)",
+    "Programming Language :: Python :: 3",
+    "Topic :: Text Processing :: Markup :: LaTeX",
+    "Topic :: Printing",
+]
+dependencies = ["pymupdf>=1.24"]
+
+[project.urls]
+Homepage = "https://github.com/example/cjk-preflight"
+
+[project.scripts]
+cjk-preflight = "cjk_preflight.__main__:main"
+
+[tool.setuptools.packages.find]
+include = ["cjk_preflight*"]
