@@ -15,7 +15,7 @@ import tempfile
 from contextlib import contextmanager
 from pathlib import Path
 
-import fitz
+import pymupdf
 
 from . import __version__
 from .checks import CHECKS
@@ -61,7 +61,7 @@ def run(path: str | Path, checks: list[str] | None = None,
     pdf_path = Path(path)
 
     def _run_all() -> Report:
-        doc = fitz.open(pdf_path)
+        doc = pymupdf.open(pdf_path)
         rep = Report(path=str(pdf_path), pages=len(doc))
         cache = TextCache(doc)
         names = list(checks) if checks else list(CHECKS)
@@ -157,7 +157,7 @@ def main(argv: list[str] | None = None) -> int:
     checks = args.checks.split(",") if args.checks else None
     try:
         reports = [run(p, checks, args.max) for p in args.pdf]
-    except fitz.FileDataError as e:
+    except pymupdf.FileDataError as e:
         print(f"无法打开: {e}", file=sys.stderr)
         return 2
 
