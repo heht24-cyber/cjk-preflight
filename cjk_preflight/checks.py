@@ -6,7 +6,7 @@ import re
 from pathlib import Path
 from typing import Iterable
 
-import fitz
+import pymupdf
 
 from .core import (
     Finding,
@@ -22,7 +22,7 @@ _NOTDEF_SIGNS = (("\ufffd", "替换符 U+FFFD（疑似缺字）"),
                  ("\u25a1", "□ U+25A1（豆腐块）"))
 
 
-def check_notdef(doc: fitz.Document, pdf_path: Path, limit: int = 50,
+def check_notdef(doc: pymupdf.Document, pdf_path: Path, limit: int = 50,
                  cache: TextCache | None = None) -> Iterable[Finding]:
     cache = cache or TextCache(doc)
     n = 0
@@ -44,7 +44,7 @@ _FONTFILE_KEYS = ("FontFile", "FontFile2", "FontFile3")
 _REF_RE = re.compile(r"(\d+)\s+0\s+R")
 
 
-def _fontfile_in(doc: fitz.Document, xref: int) -> str | None:
+def _fontfile_in(doc: pymupdf.Document, xref: int) -> str | None:
     """在 xref 自身或其 FontDescriptor 里找 FontFile*。"""
     sources = [xref]
     fd = doc.xref_get_key(xref, "FontDescriptor")
@@ -58,7 +58,7 @@ def _fontfile_in(doc: fitz.Document, xref: int) -> str | None:
     return None
 
 
-def _descendant_fontfiles(doc: fitz.Document, xref: int) -> list[str]:
+def _descendant_fontfiles(doc: pymupdf.Document, xref: int) -> list[str]:
     """Type0 字体：FontFile 藏在 DescendantFonts 里。"""
     out = []
     d = doc.xref_get_key(xref, "DescendantFonts")
@@ -71,7 +71,7 @@ def _descendant_fontfiles(doc: fitz.Document, xref: int) -> list[str]:
     return out
 
 
-def check_fonts(doc: fitz.Document, pdf_path: Path, limit: int = 50) -> Iterable[Finding]:
+def check_fonts(doc: pymupdf.Document, pdf_path: Path, limit: int = 50) -> Iterable[Finding]:
     """未嵌入字体。Type0 查 DescendantFonts，Simple 查自身 FontDescriptor。
 
     注意：`XXX-Identity-H` 形式的 Type0 包装器本身无 FontFile 是正常的，
@@ -106,7 +106,7 @@ def check_fonts(doc: fitz.Document, pdf_path: Path, limit: int = 50) -> Iterable
 
 
 # ---------------------------------------------------------------- 3. 禁则
-def check_kinsoku(doc: fitz.Document, pdf_path: Path, limit: int = 100,
+def check_kinsoku(doc: pymupdf.Document, pdf_path: Path, limit: int = 100,
                   cache: TextCache | None = None) -> Iterable[Finding]:
     cache = cache or TextCache(doc)
     n = 0
@@ -129,7 +129,7 @@ RE_ZH_EN = re.compile(f"([{ZH_RANGE}])([A-Za-z0-9][A-Za-z0-9\\-\\.]*)")
 RE_FW_ALNUM = re.compile(r"[Ａ-Ｚａ-ｚ０-９]+")
 
 
-def check_mixed_width(doc: fitz.Document, pdf_path: Path, limit: int = 100,
+def check_mixed_width(doc: pymupdf.Document, pdf_path: Path, limit: int = 100,
                       cache: TextCache | None = None) -> Iterable[Finding]:
     cache = cache or TextCache(doc)
     n = 0
@@ -155,7 +155,7 @@ def check_mixed_width(doc: fitz.Document, pdf_path: Path, limit: int = 100,
 _META_KEYS = ("Author", "Creator", "Producer", "Company", "Keywords", "Subject", "Title")
 
 
-def check_metadata(doc: fitz.Document, pdf_path: Path) -> Iterable[Finding]:
+def check_metadata(doc: pymupdf.Document, pdf_path: Path) -> Iterable[Finding]:
     md = doc.metadata or {}
     # Word/Office 痕迹
     creator = (md.get("creator") or "")
@@ -175,7 +175,7 @@ def check_metadata(doc: fitz.Document, pdf_path: Path) -> Iterable[Finding]:
 
 
 # ---------------------------------------------------------------- 6. 孤立字尾
-def check_orphan_tail(doc: fitz.Document, pdf_path: Path, limit: int = 30,
+def check_orphan_tail(doc: pymupdf.Document, pdf_path: Path, limit: int = 30,
                       cache: TextCache | None = None) -> Iterable[Finding]:
     """段落末行只有单个汉字（孤立字尾）。同块内最后一行文本长度==1 且前一行较长。"""
     cache = cache or TextCache(doc)
@@ -198,7 +198,7 @@ def check_orphan_tail(doc: fitz.Document, pdf_path: Path, limit: int = 30,
 
 
 # ---------------------------------------------------------------- 7. 页面尺寸
-def check_page_size(doc: fitz.Document, pdf_path: Path) -> Iterable[Finding]:
+def check_page_size(doc: pymupdf.Document, pdf_path: Path) -> Iterable[Finding]:
     sizes: dict[str, int] = {}
     for pno, page in enumerate(doc, 1):
         r = page.rect
