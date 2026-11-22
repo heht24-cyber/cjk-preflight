@@ -9,7 +9,7 @@ import sys
 import tempfile
 from pathlib import Path
 
-import fitz
+import pymupdf
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
@@ -18,7 +18,7 @@ from cjk_preflight.__main__ import main as cli_main, run  # noqa: E402
 
 def make_pdf(path: Path, *, tofu: bool, mixed: bool, kinsoku: bool,
              office_meta: bool, author: str | None) -> None:
-    doc = fitz.open()
+    doc = pymupdf.open()
     page = doc.new_page()
     parts = []
     if tofu:
