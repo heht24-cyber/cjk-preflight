@@ -1,7 +1,7 @@
 # cjk-preflight
 
-[![CI](https://github.com/heht24-cyber/cjk-preflight/actions/workflows/ci.yml/badge.svg)](https://github.com/heht24-cyber/cjk-preflight/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-black.svg)](LICENSE)
+[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](pyproject.toml)
 
 **中文 PDF 提交前检查器** —— 在你把 PDF 交出去之前，查出中文排版里最伤的那些问题。
 
