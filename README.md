@@ -58,6 +58,11 @@ $ cjk-preflight check 知识点整理.pdf
   —— 4 error / 47 warn+hint
 ```
 
+**更多真实例子见 [examples/真实示例集.md](examples/真实示例集.md)** —— 6 类来源
+（中文学位论文模板指南、Word 转换课件、泰文教材、XeLaTeX 作业、工程图纸、
+出版商论文），每个都附完整输出和看点解读，包括「干净文档零误报」和
+「纯图形 PDF 安静通过」的反例。
+
 ## 技术说明
 
 - 纯 Python，唯一依赖 PyMuPDF ≥1.24，无需 TeX Live / poppler
