@@ -1,20 +1,19 @@
-# -*- coding: utf-8 -*-
 """检查器集合。每个检查器是 (doc, pdf_path) -> Iterable[Finding]。"""
 from __future__ import annotations
 
 import re
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Iterable
 
 import pymupdf
 
 from .core import (
-    Finding,
     LINE_END_FORBIDDEN,
     LINE_START_FORBIDDEN,
     RE_ZH,
-    TextCache,
     ZH_RANGE,
+    Finding,
+    TextCache,
 )
 
 # ---------------------------------------------------------------- 1. 缺字
@@ -186,7 +185,7 @@ def check_orphan_tail(doc: pymupdf.Document, pdf_path: Path, limit: int = 30,
                 continue
             lines = ["".join(s["text"] for s in ln.get("spans", [])).strip()
                      for ln in block.get("lines", [])]
-            lines = [l for l in lines if l]
+            lines = [ln for ln in lines if ln]
             if len(lines) >= 2 and RE_ZH.search(lines[-1]):
                 last, prev = lines[-1], lines[-2]
                 if len(last) == 1 and len(prev) >= 10:
@@ -199,11 +198,11 @@ def check_orphan_tail(doc: pymupdf.Document, pdf_path: Path, limit: int = 30,
 
 # ---------------------------------------------------------------- 7. 页面尺寸
 def check_page_size(doc: pymupdf.Document, pdf_path: Path) -> Iterable[Finding]:
-    sizes: dict[str, int] = {}
+    sizes: dict[str, list[int]] = {}
     for pno, page in enumerate(doc, 1):
         r = page.rect
         key = f"{r.width:.1f}×{r.height:.1f}pt"
-        sizes.setdefault(key, []).append(pno) if isinstance(sizes.get(key), list) else sizes.setdefault(key, [pno])
+        sizes.setdefault(key, []).append(pno)
     if len(sizes) > 1:
         main = max(sizes.items(), key=lambda kv: len(kv[1]))
         for size, pages in sorted(sizes.items()):
