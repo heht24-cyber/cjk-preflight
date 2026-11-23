@@ -9,9 +9,21 @@ on:
 jobs:
   test:
     strategy:
+      fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
-        python: ["3.9", "3.12"]
+        include:
+          - os: ubuntu-latest      # Ubuntu 26.04，无 3.9 构建
+            python: "3.12"
+          - os: ubuntu-latest
+            python: "3.11"
+          - os: ubuntu-latest
+            python: "3.10"
+          - os: ubuntu-24.04       # 3.9 的最后阵地
+            python: "3.9"
+          - os: windows-latest
+            python: "3.12"
+          - os: windows-latest
+            python: "3.9"
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
