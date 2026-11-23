@@ -1,0 +1,13 @@
+line-length = 100
+target-version = "py39"
+
+[lint]
+select = ["E", "F", "W", "UP", "B", "SIM", "I"]
+ignore = [
+    "BLE001",  # 宽泛 except 是有意设计：损坏 PDF 的降级策略，见 run() 注释
+    "SIM115",  # fd 重定向的 TemporaryFile 需要跨 with 块持有，见 _muffle_native_stdout
+    "RUF001",  # 中文项目：字符串里含全角标点是本工具的检测对象本身
+    "RUF002",  # 同上：docstring 用中文标点
+    "RUF003",  # 同上：注释用中文标点
+    "E402",    # tests 里 sys.path 调整后的导入
+]
