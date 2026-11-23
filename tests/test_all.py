@@ -1,8 +1,9 @@
-# -*- coding: utf-8 -*-
 """端到端测试：合成 PDF 验证全部检查的触发与不误报。
 
 运行: python tests/test_all.py
 """
+from __future__ import annotations
+
 import json
 import subprocess
 import sys
@@ -13,7 +14,8 @@ import pymupdf
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
-from cjk_preflight.__main__ import main as cli_main, run  # noqa: E402
+from cjk_preflight.__main__ import main as cli_main
+from cjk_preflight.__main__ import run
 
 
 def make_pdf(path: Path, *, tofu: bool, mixed: bool, kinsoku: bool,
@@ -63,7 +65,8 @@ def test_clean_pdf_zero_error():
     pdf = case("clean", expect={}, tofu=False, mixed=False, kinsoku=False,
                office_meta=False, author=None)
     rep = run(pdf)
-    assert rep.error_count == 0, f"干净 PDF 出现 error: {[f for f in rep.findings if f.level=='error']}"
+    errs = [f for f in rep.findings if f.level == "error"]
+    assert rep.error_count == 0, f"干净 PDF 出现 error: {errs}"
     print("  PASS clean: 0 error")
 
 
@@ -103,19 +106,20 @@ def test_cli_exit_codes():
 def test_json_and_sarif():
     bad = case("bad2", expect={"notdef": ["error"]}, tofu=True, mixed=True,
                kinsoku=True, office_meta=True, author="x")
-    out = subprocess.run(
-        [sys.executable, "-X", "utf8", "-m", "cjk_preflight", "check", str(bad), "--format", "json"],
-        capture_output=True, text=True, cwd=str(ROOT), encoding="utf-8", errors="replace")
-    data = json.loads(out.stdout)
-    assert data[0]["findings"], "JSON 输出为空"
-    out = subprocess.run(
-        [sys.executable, "-X", "utf8", "-m", "cjk_preflight", "check", str(bad), "--format", "sarif"],
-        capture_output=True, text=True, cwd=str(ROOT), encoding="utf-8", errors="replace")
-    sarif = json.loads(out.stdout)
-    assert sarif["version"] == "2.1.0"
-    assert sarif["runs"][0]["results"], "SARIF results 为空"
-    rules = {r["id"] for r in sarif["runs"][0]["tool"]["driver"]["rules"]}
-    assert "notdef" in rules
+    for fmt in ("json", "sarif"):
+        out = subprocess.run(
+            [sys.executable, "-X", "utf8", "-m", "cjk_preflight", "check",
+             str(bad), "--format", fmt],
+            check=False, capture_output=True, text=True, cwd=str(ROOT),
+            encoding="utf-8", errors="replace")
+        data = json.loads(out.stdout)
+        if fmt == "json":
+            assert data[0]["findings"], "JSON 输出为空"
+        else:
+            assert data["version"] == "2.1.0"
+            assert data["runs"][0]["results"], "SARIF results 为空"
+            rules = {r["id"] for r in data["runs"][0]["tool"]["driver"]["rules"]}
+            assert "notdef" in rules
     print("  PASS json+sarif")
 
 
