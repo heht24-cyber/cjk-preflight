@@ -1,9 +1,8 @@
-# -*- coding: utf-8 -*-
 """数据结构与共享常量。"""
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass, field, asdict
+from dataclasses import asdict, dataclass, field
 
 LEVELS = ("error", "warn", "hint")
 
