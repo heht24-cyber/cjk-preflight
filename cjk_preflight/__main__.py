@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """cjk-preflight CLI。
 
 用法:
@@ -93,8 +92,8 @@ def run(path: str | Path, checks: list[str] | None = None,
 
 def _sarif(reports: list[Report]) -> dict:
     results = []
-    for ri, rep in enumerate(reports):
-        for fi, f in enumerate(rep.findings):
+    for rep in reports:
+        for f in rep.findings:
             results.append({
                 "ruleId": f.check,
                 "level": {"error": "error", "warn": "warning", "hint": "note"}[f.level],
@@ -143,7 +142,8 @@ def _print_json(s: str) -> None:
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(
         prog="cjk-preflight",
-        description="中文 PDF 提交前检查器：缺字、字体嵌入、标点禁则、全半角混排、元数据、孤立字尾、页面尺寸")
+        description="中文 PDF 提交前检查器：缺字、字体嵌入、标点禁则、"
+                    "全半角混排、元数据、孤立字尾、页面尺寸")
     ap.add_argument("--version", action="version", version=__version__)
     sub = ap.add_subparsers(dest="cmd", required=True)
     c = sub.add_parser("check", help="检查 PDF")
