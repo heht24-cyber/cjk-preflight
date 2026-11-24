@@ -105,17 +105,29 @@ def check_fonts(doc: pymupdf.Document, pdf_path: Path, limit: int = 50) -> Itera
 
 
 # ---------------------------------------------------------------- 3. 禁则
+# 行首以 .ext 开头（".sty 宏包文件" 等扩展名折行列表）不算避头违规
+_RE_LEADING_EXT = re.compile(r"^\.[A-Za-z][A-Za-z0-9]*(\s|$)")
+# 行首是代码省略号/注释（"... % 命令" 类 LaTeX 代码示意行）
+_RE_CODE_ELLIPSIS = re.compile(r"^(\.\.\.|%|\#)")
+# 句子在"描述括号本身"：行内出现"括号/定界符"字样且行尾是括号类字符（名词一部分）
+_RE_BRACKET_DESC = re.compile(r"[()\[\]{}（()【】]+\s*\\?[{([]?\s*$")
+
+
 def check_kinsoku(doc: pymupdf.Document, pdf_path: Path, limit: int = 100,
                   cache: TextCache | None = None) -> Iterable[Finding]:
     cache = cache or TextCache(doc)
     n = 0
     for pno, page in enumerate(doc, 1):
         for text in cache.cjk_lines(page):
-            if text[0] in LINE_START_FORBIDDEN:
+            # 两种正常排版：扩展名折行列表、代码示意行（省略号/注释符开头）
+            is_code_context = _RE_LEADING_EXT.match(text) or _RE_CODE_ELLIPSIS.match(text)
+            if text[0] in LINE_START_FORBIDDEN and not is_code_context:
                 yield Finding("kinsoku", "warn", pno,
                               f"行首出现避头标点『{text[0]}』", text[:24])
                 n += 1
-            if text[-1] in LINE_END_FORBIDDEN:
+            # 行尾括号出现在"描述括号本身"的句子（行内含「括号/定界符」字样）属正常
+            if text[-1] in LINE_END_FORBIDDEN and not (
+                    _RE_BRACKET_DESC.search(text) and ("括号" in text or "定界符" in text)):
                 yield Finding("kinsoku", "warn", pno,
                               f"行尾出现避尾标点『{text[-1]}』", text[-24:])
                 n += 1
