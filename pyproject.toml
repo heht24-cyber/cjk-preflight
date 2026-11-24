@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "cjk-preflight"
-version = "0.2.2"
+version = "0.3.0"
 description = "中文 PDF 提交前检查器：缺字、字体嵌入、标点禁则、全半角混排、元数据、孤立字尾、页面尺寸"
 readme = "README.md"
 requires-python = ">=3.9"
