@@ -90,6 +90,37 @@ def test_metadata():
          mixed=False, kinsoku=False, office_meta=True, author="某人")
 
 
+def test_font_embedding():
+    with tempfile.TemporaryDirectory() as tmp:
+        pdf = Path(tmp) / "font-embedding.pdf"
+        with pymupdf.open() as doc:
+            page = doc.new_page()
+            missing_font = page.insert_font(fontname="helv")
+            page.insert_text((72, 90), "Unembedded font", fontname="helv")
+            duplicate = doc.get_new_xref()
+            doc.update_object(duplicate, doc.xref_object(missing_font))
+
+            page.insert_font(fontname="Embedded", fontbuffer=pymupdf.Font("helv").buffer)
+            page.insert_text((72, 120), "Embedded font", fontname="Embedded")
+
+            glyph = doc.get_new_xref()
+            doc.update_object(glyph, "<<>>")
+            doc.update_stream(glyph, b"600 0 d0 0 0 600 700 re f")
+            type3 = doc.get_new_xref()
+            doc.update_object(type3, f"""<< /Type /Font /Subtype /Type3 /Name /Drawn
+                /FontBBox [0 0 600 700] /FontMatrix [.001 0 0 .001 0 0]
+                /CharProcs << /A {glyph} 0 R >>
+                /Encoding << /Type /Encoding /Differences [65 /A] >>
+                /FirstChar 65 /LastChar 65 /Widths [600] /Resources <<>> >>""")
+            doc.save(pdf)
+
+        report = run(pdf, checks=["fonts"])
+        assert report.error_count == 1
+        assert [(f.check, f.message) for f in report.findings] == [
+            ("font-not-embedded", "字体未嵌入: /Helvetica"),
+        ]
+
+
 def test_cli_exit_codes():
     """error → exit 1；干净 → exit 0；JSON 可解析。"""
     bad = case("bad", expect={"notdef": ["error"]}, tofu=True, mixed=True,
@@ -129,6 +160,7 @@ if __name__ == "__main__":
     test_mixed()
     test_kinsoku()
     test_metadata()
+    test_font_embedding()
     test_cli_exit_codes()
     test_json_and_sarif()
     print("\nALL TESTS PASSED")

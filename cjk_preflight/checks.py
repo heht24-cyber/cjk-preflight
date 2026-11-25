@@ -77,15 +77,18 @@ def check_fonts(doc: pymupdf.Document, pdf_path: Path, limit: int = 50) -> Itera
     嵌入信息在其 descendant 上——不能只看包装器就报未嵌入。
     """
     n = 0
-    seen: set[str] = set()
+    reported: set[str] = set()
     for xref in range(1, doc.xref_length()):
         t = doc.xref_get_key(xref, "Type")
         if not t or t[1] != "/Font":
             continue
         try:
             base = doc.xref_get_key(xref, "BaseFont")[1] or "?"
-            subtype = doc.xref_get_key(xref, "Subtype")
-            if subtype and subtype[1] == "/Type0":
+            subtype = doc.xref_get_key(xref, "Subtype")[1]
+            if subtype == "/Type3":
+                # Type 3 字形由 PDF 内部的 CharProcs 定义，无需 FontFile。
+                continue
+            if subtype == "/Type0":
                 embedded = bool(_descendant_fontfiles(doc, xref))
             else:
                 embedded = bool(_fontfile_in(doc, xref))
@@ -93,10 +96,8 @@ def check_fonts(doc: pymupdf.Document, pdf_path: Path, limit: int = 50) -> Itera
             yield Finding("font-not-embedded", "warn", 0,
                           f"字体对象无法解析（文件可能损坏）: xref{xref} ({type(e).__name__})")
             continue
-        seen.add(base)
-        if base in seen:
-            continue
-        if not embedded:
+        if not embedded and base not in reported:
+            reported.add(base)
             yield Finding("font-not-embedded", "error", 0,
                           f"字体未嵌入: {base}")
             n += 1
