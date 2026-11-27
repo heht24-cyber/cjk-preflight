@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="820" height="270" viewBox="0 0 820 270" role="img" aria-label="cjk-preflight terminal output preview">
+  <rect width="820" height="270" rx="12" fill="#0d1117" stroke="#30363d" stroke-width="1"/>
+  <rect width="820" height="36" rx="12" fill="#161b22"/>
+  <rect y="24" width="820" height="12" fill="#161b22"/>
+  <circle cx="20" cy="18" r="6" fill="#ff5f56"/>
+  <circle cx="40" cy="18" r="6" fill="#ffbd2e"/>
+  <circle cx="60" cy="18" r="6" fill="#27c93f"/>
+  <text x="410" y="23" text-anchor="middle" fill="#8b949e" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="12">cjk-preflight check</text>
+  <g font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,'Microsoft YaHei',sans-serif" font-size="13.5">
+    <text x="24" y="66" fill="#8b949e">$ <tspan fill="#e6edf3">cjk-preflight check 知识点整理.pdf</tspan></text>
+    <text x="24" y="96" fill="#e6edf3" font-weight="bold">知识点整理.pdf  <tspan fill="#8b949e" font-weight="normal">(2 页)</tspan></text>
+    <text x="24" y="124" fill="#f85149">  [ERROR] <tspan fill="#8b949e">p0 </tspan><tspan fill="#ff7b72">font-not-embedded</tspan><tspan fill="#e6edf3">: 字体未嵌入: /TimesNewRoman</tspan></text>
+    <text x="24" y="150" fill="#f85149">  [ERROR] <tspan fill="#8b949e">p0 </tspan><tspan fill="#ff7b72">font-not-embedded</tspan><tspan fill="#e6edf3">: 字体未嵌入: /TimesNewRoman,Bold</tspan></text>
+    <text x="24" y="176" fill="#d29922">  [WARN ] <tspan fill="#8b949e">p0 </tspan><tspan fill="#e3b341">metadata</tspan><tspan fill="#e6edf3">: 作者字段非空: Nicorn</tspan></text>
+    <text x="24" y="202" fill="#58a6ff">  [HINT ] <tspan fill="#8b949e">p1 </tspan><tspan fill="#79c0ff">mixed-width</tspan><tspan fill="#e6edf3">: 中英文之间无空格『体50』 …气体50~1000——格…</tspan></text>
+    <text x="24" y="238" fill="#8b949e">  —— <tspan fill="#f85149" font-weight="bold">4 error</tspan> / <tspan fill="#d29922">47 warn+hint</tspan>  (exit code 1 · CI ready)</text>
+  </g>
+</svg>
