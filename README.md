@@ -13,9 +13,13 @@
 - **接收别人的 PDF 时**：3 秒判断这文件在别的电脑上会不会出问题
 
 ```bash
-pip install cjk-preflight          # 计划中；当前: pip install -e .
-cjk-preflight check 论文.pdf        # 检查
-cjk-preflight check *.pdf --format sarif > results.sarif   # 对接代码扫描
+# 一行安装（推荐 pipx，或直接 uvx 免安装运行）
+pipx install git+https://github.com/heht24-cyber/cjk-preflight.git
+# 或: pip install git+https://github.com/heht24-cyber/cjk-preflight.git
+# 或免安装试用: uvx --from git+https://github.com/heht24-cyber/cjk-preflight.git cjk-preflight check 论文.pdf
+
+cjk-preflight check 论文.pdf                                 # 检查单个 PDF
+cjk-preflight check *.pdf --format sarif > results.sarif     # 批量检查并对接代码扫描 / CI
 ```
 
 ## 它查什么
@@ -82,13 +86,6 @@ $ cjk-preflight check 知识点整理.pdf
 - 损坏 PDF（坏 xref、zlib 数据损坏）：降级为提示继续检查，不中断
 - 中文 Windows GBK 终端：输出自动降级编码，不崩
 - 性能：880 页教科书 ~21s；常规文档 <1s
-
-### 真实语料发现（Word/WPS 转 PDF 几乎必中）
-
-- 3/3 Word 转 PDF 样本**字体未嵌入**（TimesNewRoman、宋体、微软雅黑、Arial）
-- Word 断行产生行首避头标点（LaTeX 不会）
-- 元数据留有作者真名、生成器信息
-- LaTeX (XeLaTeX + ctex) 产物：字体全嵌入、禁则零违规——不误报
 
 ## License
 
